@@ -52,7 +52,7 @@ function wordblock_uninstall()
 
 // Hooks
 $plugins->add_hook("datahandler_post_validate_post", "wordblock_datahandler_post_validate_post");
-$plugins->add_hook("datahandler_post_validate_thread", "wordblock_datahandler_post_validate_thread");
+$plugins->add_hook("newthread_do_newthread_start", "wordblock_newthread_do_newthread_start");
 $plugins->add_hook("admin_config_menu", "wordblock_admin_config_menu");
 $plugins->add_hook("admin_config_action_handler", "wordblock_admin_config_action_handler");
 
@@ -62,7 +62,7 @@ function wordblock_datahandler_post_validate_post($this)
     $query = $db->simple_select("wordblock", "*");
     while($word = $db->fetch_array($query))
     {
-        if(strpos($post['message'], $word['word']) !== false)
+        if(strpos($post['message'], $word['word']) !== false || strpos($post['subject'], $word['word']) !== false)
         {
             // Update the last use column
             $update_array = array(
@@ -76,13 +76,15 @@ function wordblock_datahandler_post_validate_post($this)
     return;
 }
 
-function wordblock_datahandler_post_validate_thread($this)
+function wordblock_newthread_do_newthread_start()
 {
-    global $thread, $db;
+    global $mybb, $db;
     $query = $db->simple_select("wordblock", "*");
+    $message = $mybb->get_input("message");
+    $subject = $mybb->get_input("subject");
     while($word = $db->fetch_array($query))
     {
-        if(strpos($thread['message'], $word['word']) !== false)
+        if(strpos($message, $word['word']) !== false || strpos($subject, $word['word']) !== false)
         {
             // Update the last use column
             $update_array = array(
