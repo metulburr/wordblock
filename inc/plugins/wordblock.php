@@ -8,10 +8,13 @@
 
 function wordblock_info()
 {
+    global $mybb;
+    $updatelink = "index.php?module=config-plugins&action=updatewordblock&my_post_key=" . $mybb->post_code;
     return array(
         "name" => "Word Block",
+        "description" => "Block specific words from being posted on your forum.  <a href='" . $updatelink . "'>Click here</a> to run the update script.",
         "author" => "Mark Janssen",
-        "version" => "1.0",
+        "version" => "2.0",
         "codename" => "wordblock",
         "compatibility" => "18**"
     );
@@ -23,7 +26,9 @@ function wordblock_install()
     $db->write_query("CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "wordblock (
     wid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     word TEXT,
-    lastattempt BIGINT(20) NOT NULL DEFAULT 0
+    case_sensitive INT(1) DEFAULT 0,
+    uses INT UNSIGNED DEFAULT 0,
+    lastattempt BIGINT(20) UNSIGNED DEFAULT 0
     ) ENGINE = Innodb " . $db->build_create_table_collation());
 }
 
@@ -55,6 +60,7 @@ $plugins->add_hook("datahandler_post_validate_post", "wordblock_datahandler_post
 $plugins->add_hook("newthread_do_newthread_start", "wordblock_newthread_do_newthread_start");
 $plugins->add_hook("admin_config_menu", "wordblock_admin_config_menu");
 $plugins->add_hook("admin_config_action_handler", "wordblock_admin_config_action_handler");
+$plugins->add_hook("admin_config_plugins_begin", "wordblock_admin_config_plugins_update");
 
 function wordblock_datahandler_post_validate_post($this)
 {
@@ -62,15 +68,34 @@ function wordblock_datahandler_post_validate_post($this)
     $query = $db->simple_select("wordblock", "*");
     while($word = $db->fetch_array($query))
     {
-        if(strpos($post['message'], $word['word']) !== false || strpos($post['subject'], $word['word']) !== false)
+        if($word['case_sensitive'] == 1)
         {
-            // Update the last use column
-            $update_array = array(
-                "lastattempt" => time()
-            );
-            $wid = $word['wid'];
-            $db->update_query("wordblock", $update_array, "wid=$wid");
-            error("Your post contains one or more words that are not allowed.");
+            if(strpos($post['message'], $word['word']) !== false || strpos($post['subject'], $word['word']) !== false)
+            {
+                // Update the last use column
+                $update_array = array(
+                    "lastattempt" => time(),
+                    "uses" => $word['uses'] += 1
+                );
+                $wid = $word['wid'];
+                $db->update_query("wordblock", $update_array, "wid=$wid");
+                error("Your post contains one or more words that are not allowed.");
+            }
+        }
+        else
+        {
+            // Not case sensitive
+            if(stripos($post['message'], $word['word']) !== false || stripos($post['subject'], $word['word']) !== false)
+            {
+                // Update the last use column
+                $update_array = array(
+                    "lastattempt" => time(),
+                    "uses" => $word['uses'] += 1
+                );
+                $wid = $word['wid'];
+                $db->update_query("wordblock", $update_array, "wid=$wid");
+                error("Your post contains one or more words that are not allowed.");
+            }
         }
     }
     return;
@@ -84,15 +109,34 @@ function wordblock_newthread_do_newthread_start()
     $subject = $mybb->get_input("subject");
     while($word = $db->fetch_array($query))
     {
-        if(strpos($message, $word['word']) !== false || strpos($subject, $word['word']) !== false)
+        if($word['case_sensitive'] == 1)
         {
-            // Update the last use column
-            $update_array = array(
-                "lastattempt" => time()
-            );
-            $wid = $word['wid'];
-            $db->update_query("wordblock", $update_array, "wid=$wid");
-            error("Your post contains one or more words that are not allowed.");
+            if (strpos($message, $word['word']) !== false || strpos($subject, $word['word']) !== false)
+            {
+                // Update the last use column
+                $update_array = array(
+                    "lastattempt" => time(),
+                    "uses" => $word['uses'] += 1
+                );
+                $wid = $word['wid'];
+                $db->update_query("wordblock", $update_array, "wid=$wid");
+                error("Your post contains one or more words that are not allowed.");
+            }
+        }
+        else
+        {
+            // Not case sensitive
+            if (stripos($message, $word['word']) !== false || stripos($subject, $word['word']) !== false)
+            {
+                // Update the last use column
+                $update_array = array(
+                    "lastattempt" => time(),
+                    "uses" => $word['uses'] += 1
+                );
+                $wid = $word['wid'];
+                $db->update_query("wordblock", $update_array, "wid=$wid");
+                error("Your post contains one or more words that are not allowed.");
+            }
         }
     }
     return;
@@ -114,4 +158,25 @@ function wordblock_admin_config_action_handler(&$actions)
         "active" => "wordblock",
         "file" => "admin_wordblock.php"
     );
+}
+
+function wordblock_admin_config_plugins_update()
+{
+    global $mybb, $db;
+    if($mybb->input['action'] == "updatewordblock")
+    {
+        verify_post_check($mybb->input['my_post_key']);
+        if(!$db->field_exists("uses", "wordblock"))
+        {
+            $db->write_query("ALTER TABLE " . TABLE_PREFIX . "wordblock
+            ADD uses INT UNSIGNED NOT NULL DEFAULT 0");
+        }
+        if(!$db->field_exists("case_sensitive", "wordblock"))
+        {
+            $db->write_query("ALTER TABLE " . TABLE_PREFIX . "wordblock
+            ADD case_sensitive INT(1) DEFAULT 0");
+        }
+        flash_message("Word Block has been updated.", "success");
+        admin_redirect("index.php?module=config-wordblock");
+    }
 }
