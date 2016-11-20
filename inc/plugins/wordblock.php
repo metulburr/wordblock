@@ -70,7 +70,7 @@ function wordblock_datahandler_post_validate_post($this)
     {
         if($word['case_sensitive'] == 1)
         {
-            if(strpos($post['message'], $word['word']) !== false || strpos($post['subject'], $word['word']) !== false)
+            if(strpos($post['subject'], $word['word']) !== false)
             {
                 // Update the last use column
                 $update_array = array(
@@ -85,7 +85,7 @@ function wordblock_datahandler_post_validate_post($this)
         else
         {
             // Not case sensitive
-            if(stripos($post['message'], $word['word']) !== false || stripos($post['subject'], $word['word']) !== false)
+            if(stripos($post['subject'], $word['word']) !== false)
             {
                 // Update the last use column
                 $update_array = array(
@@ -111,7 +111,7 @@ function wordblock_newthread_do_newthread_start()
     {
         if($word['case_sensitive'] == 1)
         {
-            if (strpos($message, $word['word']) !== false || strpos($subject, $word['word']) !== false)
+            if (strpos($subject, $word['word']) !== false)
             {
                 // Update the last use column
                 $update_array = array(
@@ -126,7 +126,7 @@ function wordblock_newthread_do_newthread_start()
         else
         {
             // Not case sensitive
-            if (stripos($message, $word['word']) !== false || stripos($subject, $word['word']) !== false)
+            if (stripos($subject, $word['word']) !== false)
             {
                 // Update the last use column
                 $update_array = array(
