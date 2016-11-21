@@ -79,7 +79,8 @@ function wordblock_datahandler_post_validate_post($this)
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post contains one or more words that are not allowed.");
+                error("Your post has been flagged as spam and blocked.");
+
             }
         }
         else
@@ -94,7 +95,8 @@ function wordblock_datahandler_post_validate_post($this)
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post contains one or more words that are not allowed.");
+                error("Your post has been flagged as spam and blocked.");
+
             }
         }
     }
@@ -120,7 +122,8 @@ function wordblock_newthread_do_newthread_start()
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post contains one or more words that are not allowed.");
+                error("Your post has been flagged as spam and blocked.");
+
             }
         }
         else
@@ -135,7 +138,8 @@ function wordblock_newthread_do_newthread_start()
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post contains one or more words that are not allowed.");
+                error("Your post has been flagged as spam and blocked.");
+
             }
         }
     }
