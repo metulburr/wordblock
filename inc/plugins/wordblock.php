@@ -79,7 +79,7 @@ function wordblock_datahandler_post_validate_post($this)
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post has been flagged as spam and blocked.");
+                error("You are in violation of our rules. Please read <a href='http://python-forum.io/misc.php?action=help&hid=31'>here</a>");
 
             }
         }
@@ -95,7 +95,7 @@ function wordblock_datahandler_post_validate_post($this)
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post has been flagged as spam and blocked.");
+                error("You are in violation of our rules. Please read <a href='http://python-forum.io/misc.php?action=help&hid=31'>here</a>");
 
             }
         }
@@ -122,7 +122,7 @@ function wordblock_newthread_do_newthread_start()
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post has been flagged as spam and blocked.");
+                error("You are in violation of our rules. Please read <a href='http://python-forum.io/misc.php?action=help&hid=31'>here</a>");
 
             }
         }
@@ -138,7 +138,7 @@ function wordblock_newthread_do_newthread_start()
                 );
                 $wid = $word['wid'];
                 $db->update_query("wordblock", $update_array, "wid=$wid");
-                error("Your post has been flagged as spam and blocked.");
+                error("You are in violation of our rules. Please read <a href='http://python-forum.io/misc.php?action=help&hid=31'>here</a>");
 
             }
         }
